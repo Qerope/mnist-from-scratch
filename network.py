@@ -40,3 +40,25 @@ class Network:
             nabla_b[-l] = delta
             nabla_w[-l] = np.dot(delta, activations[-l - 1].T)
         return nabla_b, nabla_w
+
+    def evaluate(self, X, labels):
+        pred = np.argmax(self.feedforward(X.T), axis=0)
+        return np.mean(pred == labels)
+
+    def sgd(self, X, Y, epochs, batch_size, eta, test=None):
+        n = len(X)
+        perm = np.random.permutation(n)
+        for epoch in range(epochs):
+            for k in range(0, n, batch_size):
+                idx = perm[k:k + batch_size]
+                nb = [np.zeros(b.shape) for b in self.biases]
+                nw = [np.zeros(w.shape) for w in self.weights]
+                for i in idx:
+                    dnb, dnw = self.backprop(X[i].reshape(-1, 1), Y[i].reshape(-1, 1))
+                    nb = [a + b for a, b in zip(nb, dnb)]
+                    nw = [a + b for a, b in zip(nw, dnw)]
+                self.weights = [w - eta * g for w, g in zip(self.weights, nw)]
+                self.biases = [b - eta * g for b, g in zip(self.biases, nb)]
+            if test is not None:
+                acc = self.evaluate(*test)
+                print('epoch %d: %.4f' % (epoch + 1, acc))

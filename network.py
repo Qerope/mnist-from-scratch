@@ -57,8 +57,8 @@ class Network:
                     dnb, dnw = self.backprop(X[i].reshape(-1, 1), Y[i].reshape(-1, 1))
                     nb = [a + b for a, b in zip(nb, dnb)]
                     nw = [a + b for a, b in zip(nw, dnw)]
-                self.weights = [w - eta * g for w, g in zip(self.weights, nw)]
-                self.biases = [b - eta * g for b, g in zip(self.biases, nb)]
+                self.weights = [w - eta / len(idx) * g for w, g in zip(self.weights, nw)]
+                self.biases = [b - eta / len(idx) * g for b, g in zip(self.biases, nb)]
             if test is not None:
                 acc = self.evaluate(*test)
                 print('epoch %d: %.4f' % (epoch + 1, acc))

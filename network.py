@@ -33,7 +33,7 @@ class Network:
             zs.append(z)
             a = sigmoid(z)
             activations.append(a)
-        delta = (activations[-1] - y) * sigmoid_prime(zs[-1])
+        delta = activations[-1] - y
         nabla_b[-1] = delta
         nabla_w[-1] = np.dot(delta, activations[-2].T)
         for l in range(2, len(self.sizes)):
@@ -41,6 +41,10 @@ class Network:
             nabla_b[-l] = delta
             nabla_w[-l] = np.dot(delta, activations[-l - 1].T)
         return nabla_b, nabla_w
+
+    def cost(self, X, Y):
+        a = self.feedforward(X.T)
+        return -np.sum(Y.T * np.log(a + 1e-12)) / len(X)
 
     def evaluate(self, X, labels):
         pred = np.argmax(self.feedforward(X.T), axis=0)

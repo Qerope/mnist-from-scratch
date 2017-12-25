@@ -22,23 +22,24 @@ class Network:
             a = sigmoid(np.dot(w, a) + b)
         return a
 
-    def backprop(self, x, y):
-        nabla_b = [np.zeros(b.shape) for b in self.biases]
-        nabla_w = [np.zeros(w.shape) for w in self.weights]
-        a = x
-        activations = [x]
+    def backprop(self, X, Y):
+        """X is (n_in, m), Y is (n_out, m); returns gradients summed over the batch."""
+        nabla_b = [None] * len(self.biases)
+        nabla_w = [None] * len(self.weights)
+        a = X
+        activations = [X]
         zs = []
         for b, w in zip(self.biases, self.weights):
             z = np.dot(w, a) + b
             zs.append(z)
             a = sigmoid(z)
             activations.append(a)
-        delta = activations[-1] - y
-        nabla_b[-1] = delta
+        delta = activations[-1] - Y
+        nabla_b[-1] = delta.sum(axis=1, keepdims=True)
         nabla_w[-1] = np.dot(delta, activations[-2].T)
         for l in range(2, len(self.sizes)):
             delta = np.dot(self.weights[-l + 1].T, delta) * sigmoid_prime(zs[-l])
-            nabla_b[-l] = delta
+            nabla_b[-l] = delta.sum(axis=1, keepdims=True)
             nabla_w[-l] = np.dot(delta, activations[-l - 1].T)
         return nabla_b, nabla_w
 
@@ -56,12 +57,7 @@ class Network:
         for epoch in range(epochs):
             for k in range(0, n, batch_size):
                 idx = perm[k:k + batch_size]
-                nb = [np.zeros(b.shape) for b in self.biases]
-                nw = [np.zeros(w.shape) for w in self.weights]
-                for i in idx:
-                    dnb, dnw = self.backprop(X[i].reshape(-1, 1), Y[i].reshape(-1, 1))
-                    nb = [a + b for a, b in zip(nb, dnb)]
-                    nw = [a + b for a, b in zip(nw, dnw)]
+                nb, nw = self.backprop(X[idx].T, Y[idx].T)
                 self.weights = [w - eta / len(idx) * g for w, g in zip(self.weights, nw)]
                 self.biases = [b - eta / len(idx) * g for b, g in zip(self.biases, nb)]
             if test is not None:

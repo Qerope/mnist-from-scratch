@@ -51,14 +51,15 @@ class Network:
         pred = np.argmax(self.feedforward(X.T), axis=0)
         return np.mean(pred == labels)
 
-    def sgd(self, X, Y, epochs, batch_size, eta, test=None):
+    def sgd(self, X, Y, epochs, batch_size, eta, lmbda=0.0, test=None):
         n = len(X)
         perm = np.random.permutation(n)
         for epoch in range(epochs):
             for k in range(0, n, batch_size):
                 idx = perm[k:k + batch_size]
                 nb, nw = self.backprop(X[idx].T, Y[idx].T)
-                self.weights = [w - eta / len(idx) * g for w, g in zip(self.weights, nw)]
+                decay = 1 - eta * lmbda / n
+                self.weights = [decay * w - eta / len(idx) * g for w, g in zip(self.weights, nw)]
                 self.biases = [b - eta / len(idx) * g for b, g in zip(self.biases, nb)]
             if test is not None:
                 acc = self.evaluate(*test)

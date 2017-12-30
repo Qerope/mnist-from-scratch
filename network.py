@@ -64,3 +64,12 @@ class Network:
             if test is not None:
                 acc = self.evaluate(*test)
                 print('epoch %d: %.4f' % (epoch + 1, acc))
+
+    def save(self, path):
+        np.savez(path, *self.weights, *self.biases)
+
+    def load(self, path):
+        data = np.load(path)
+        k = len(self.weights)
+        self.weights = [data['arr_%d' % i] for i in range(k)]
+        self.biases = [data['arr_%d' % i] for i in range(k, 2 * k)]

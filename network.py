@@ -53,6 +53,7 @@ class Network:
 
     def sgd(self, X, Y, epochs, batch_size, eta, lmbda=0.0, test=None):
         n = len(X)
+        history = []
         perm = np.random.permutation(n)
         for epoch in range(epochs):
             for k in range(0, n, batch_size):
@@ -63,7 +64,9 @@ class Network:
                 self.biases = [b - eta / len(idx) * g for b, g in zip(self.biases, nb)]
             if test is not None:
                 acc = self.evaluate(*test)
+                history.append(acc)
                 print('epoch %d: %.4f' % (epoch + 1, acc))
+        return history
 
     def save(self, path):
         np.savez(path, *self.weights, *self.biases)

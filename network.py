@@ -18,7 +18,7 @@ def relu_prime(z):
 
 
 def softmax(z):
-    e = np.exp(z)
+    e = np.exp(z - z.max(axis=0, keepdims=True))
     return e / e.sum(axis=0, keepdims=True)
 
 

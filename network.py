@@ -71,8 +71,8 @@ class Network:
     def sgd(self, X, Y, epochs, batch_size, eta, lmbda=0.0, test=None):
         n = len(X)
         history = []
-        perm = np.random.permutation(n)
         for epoch in range(epochs):
+            perm = np.random.permutation(n)
             for k in range(0, n, batch_size):
                 idx = perm[k:k + batch_size]
                 nb, nw = self.backprop(X[idx].T, Y[idx].T)
